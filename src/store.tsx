@@ -3,14 +3,18 @@ import type { Member } from './data/types'
 import { SEED_MEMBERS, SOFTWARE_LIST } from './data/seed'
 import type { Contract } from './data/contracts'
 import { SEED_CONTRACTS } from './data/contracts'
+import type { ApiKey } from './data/apikeys'
+import { SEED_APIKEYS } from './data/apikeys'
 
 const STORAGE_KEY = 'appmgmt.members.v1'
 const CONTRACTS_KEY = 'appmgmt.contracts.v1'
+const APIKEYS_KEY = 'appmgmt.apikeys.v1'
 
 interface Store {
   members: Member[]
   software: string[]
   contracts: Contract[]
+  apiKeys: ApiKey[]
   addMember: (m: Omit<Member, 'id'>) => void
   updateMember: (id: number, patch: Partial<Member>) => void
   removeMember: (id: number) => void
@@ -18,6 +22,9 @@ interface Store {
   addContract: (c: Omit<Contract, 'id'>) => void
   updateContract: (id: number, patch: Partial<Contract>) => void
   removeContract: (id: number) => void
+  addApiKey: (k: Omit<ApiKey, 'id'>) => void
+  updateApiKey: (id: number, patch: Partial<ApiKey>) => void
+  removeApiKey: (id: number) => void
   resetDemo: () => void
 }
 
@@ -36,6 +43,7 @@ function load<T>(key: string, fallback: T): T {
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [members, setMembers] = useState<Member[]>(() => load(STORAGE_KEY, SEED_MEMBERS))
   const [contracts, setContracts] = useState<Contract[]>(() => load(CONTRACTS_KEY, SEED_CONTRACTS))
+  const [apiKeys, setApiKeys] = useState<ApiKey[]>(() => load(APIKEYS_KEY, SEED_APIKEYS))
 
   useEffect(() => {
     try {
@@ -52,6 +60,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
   }, [contracts])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(APIKEYS_KEY, JSON.stringify(apiKeys))
+    } catch {
+      /* ignore */
+    }
+  }, [apiKeys])
 
   const store = useMemo<Store>(
     () => ({
@@ -81,12 +97,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       updateContract: (id, patch) =>
         setContracts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p))),
       removeContract: (id) => setContracts((prev) => prev.filter((p) => p.id !== id)),
+      apiKeys,
+      addApiKey: (k) =>
+        setApiKeys((prev) => [...prev, { ...k, id: Math.max(0, ...prev.map((p) => p.id)) + 1 }]),
+      updateApiKey: (id, patch) =>
+        setApiKeys((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p))),
+      removeApiKey: (id) => setApiKeys((prev) => prev.filter((p) => p.id !== id)),
       resetDemo: () => {
         setMembers(SEED_MEMBERS)
         setContracts(SEED_CONTRACTS)
+        setApiKeys(SEED_APIKEYS)
       },
     }),
-    [members, contracts],
+    [members, contracts, apiKeys],
   )
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>
