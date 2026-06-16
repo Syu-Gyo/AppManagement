@@ -68,7 +68,7 @@ export default function ApiKeyDrawer({
           </div>
           <div className="field">
             <label>管理者</label>
-            <input value={draft.owner} onChange={(e) => set('owner', e.target.value)} placeholder="taro@oliverinc.co.jp" />
+            <input value={draft.owner.split('@')[0]} onChange={(e) => set('owner', e.target.value)} placeholder="担当者名" />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>

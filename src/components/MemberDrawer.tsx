@@ -75,10 +75,6 @@ export default function MemberDrawer({
               <input value={draft.section} onChange={(e) => setDraft({ ...draft, section: e.target.value })} placeholder="東京第1" />
             </div>
           </div>
-          <div className="field">
-            <label>メールアドレス</label>
-            <input value={draft.email} onChange={(e) => setDraft({ ...draft, email: e.target.value })} placeholder="taro@oliverinc.co.jp" />
-          </div>
 
           <div className="subhead">ライセンス割り当て</div>
           <div className="lic-toggle-grid">

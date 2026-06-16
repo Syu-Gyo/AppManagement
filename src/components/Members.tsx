@@ -21,7 +21,7 @@ export default function Members({ onOpen }: { onOpen: (m: Member) => void }) {
       if (dept && m.department !== dept) return false
       if (sw && !m.licenses.includes(sw)) return false
       if (kw) {
-        const hay = `${m.name} ${m.email} ${m.department} ${m.section}`.toLowerCase()
+        const hay = `${m.name} ${m.department} ${m.section}`.toLowerCase()
         if (!hay.includes(kw)) return false
       }
       return true
@@ -34,7 +34,7 @@ export default function Members({ onOpen }: { onOpen: (m: Member) => void }) {
         <div className="search">
           <span>🔍</span>
           <input
-            placeholder="名前・メール・部署で検索…"
+            placeholder="名前・部署で検索…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -73,7 +73,7 @@ export default function Members({ onOpen }: { onOpen: (m: Member) => void }) {
                     <div className="avatar" style={{ background: avatarColor(m.name) }}>{initials(m.name)}</div>
                     <div>
                       <div className="person-name">{m.name}</div>
-                      <div className="person-mail">{m.email || '—'}</div>
+                      <div className="person-mail">{m.section || m.department || '—'}</div>
                     </div>
                   </div>
                 </td>

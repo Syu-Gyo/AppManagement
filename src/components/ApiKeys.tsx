@@ -112,7 +112,7 @@ export default function ApiKeys({ onOpen }: { onOpen: (k: ApiKey) => void }) {
                     ? { background: '#eef2ff', color: '#4f46e5', borderColor: '#c7d2fe' }
                     : { background: 'var(--surface-2)' }}>{k.env}</span>
                 </td>
-                <td style={{ fontSize: 12.5 }}><span className="muted">{k.owner}</span></td>
+                <td style={{ fontSize: 12.5 }}><span className="muted">{k.owner.split('@')[0]}</span></td>
                 <td onClick={(e) => e.stopPropagation()}><UsageBar k={k} /></td>
                 <td style={{ textAlign: 'center' }} onClick={(e) => e.stopPropagation()}>
                   <button

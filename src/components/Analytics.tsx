@@ -150,7 +150,7 @@ export default function Analytics() {
               const usePct = o.budget > 0 ? (o.usage / o.budget) * 100 : 0
               return (
                 <div className="bar-row" key={o.owner} style={{ gridTemplateColumns: '170px 1fr 110px' }}>
-                  <div className="bar-label" style={{ fontSize: 12 }} title={o.owner}>
+                  <div className="bar-label" style={{ fontSize: 12 }} title={o.owner.split('@')[0]}>
                     {o.owner.split('@')[0]}
                   </div>
                   <div className="bar-track">
