@@ -242,6 +242,26 @@ tbody tr:hover { background: var(--primary-soft); cursor: pointer; }
 .legend { display: flex; gap: 16px; align-items: center; font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
 .legend .sw-dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 5px; vertical-align: -1px; }
 
+/* ---------- Gantt ---------- */
+.gantt-head { display: flex; align-items: flex-end; margin-bottom: 10px; }
+.gantt-label-col { width: 180px; flex-shrink: 0; }
+.gantt-track-head { flex: 1; display: flex; position: relative; border-bottom: 2px solid var(--border); }
+.gantt-month { flex: 1; text-align: center; font-size: 11px; color: var(--text-muted); padding-bottom: 6px; border-left: 1px solid var(--border); }
+.gantt-month:first-child { border-left: none; }
+.gantt-row { display: flex; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+.gantt-row:hover { background: var(--primary-soft); }
+.gantt-row:last-child { border-bottom: none; }
+.gantt-track { flex: 1; position: relative; height: 26px; }
+.gantt-bar {
+  position: absolute; top: 3px; height: 20px; border-radius: 6px;
+  display: flex; align-items: center; padding: 0 8px; min-width: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.12); overflow: hidden;
+}
+.gantt-bar-label { font-size: 10.5px; color: #fff; font-weight: 600; white-space: nowrap; }
+.gantt-today, .gantt-today-line { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dashed #e11d48; z-index: 2; }
+.gantt-today { bottom: -4px; }
+.gantt-today-flag { position: absolute; top: -2px; left: 3px; font-size: 9.5px; color: #e11d48; font-weight: 700; white-space: nowrap; }
+
 @media (max-width: 880px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { display: none; }

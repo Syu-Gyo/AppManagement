@@ -1,33 +1,41 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { Member } from './data/types'
 import { SEED_MEMBERS, SOFTWARE_LIST } from './data/seed'
+import type { Contract } from './data/contracts'
+import { SEED_CONTRACTS } from './data/contracts'
 
 const STORAGE_KEY = 'appmgmt.members.v1'
+const CONTRACTS_KEY = 'appmgmt.contracts.v1'
 
 interface Store {
   members: Member[]
   software: string[]
+  contracts: Contract[]
   addMember: (m: Omit<Member, 'id'>) => void
   updateMember: (id: number, patch: Partial<Member>) => void
   removeMember: (id: number) => void
   toggleLicense: (id: number, sw: string) => void
+  addContract: (c: Omit<Contract, 'id'>) => void
+  updateContract: (id: number, patch: Partial<Contract>) => void
+  removeContract: (id: number) => void
   resetDemo: () => void
 }
 
 const Ctx = createContext<Store | null>(null)
 
-function load(): Member[] {
+function load<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw) as Member[]
+    const raw = localStorage.getItem(key)
+    if (raw) return JSON.parse(raw) as T
   } catch {
     /* ignore */
   }
-  return SEED_MEMBERS
+  return fallback
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [members, setMembers] = useState<Member[]>(load)
+  const [members, setMembers] = useState<Member[]>(() => load(STORAGE_KEY, SEED_MEMBERS))
+  const [contracts, setContracts] = useState<Contract[]>(() => load(CONTRACTS_KEY, SEED_CONTRACTS))
 
   useEffect(() => {
     try {
@@ -36,6 +44,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       /* ignore */
     }
   }, [members])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CONTRACTS_KEY, JSON.stringify(contracts))
+    } catch {
+      /* ignore */
+    }
+  }, [contracts])
 
   const store = useMemo<Store>(
     () => ({
@@ -59,9 +75,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               : p,
           ),
         ),
-      resetDemo: () => setMembers(SEED_MEMBERS),
+      contracts,
+      addContract: (c) =>
+        setContracts((prev) => [...prev, { ...c, id: Math.max(0, ...prev.map((p) => p.id)) + 1 }]),
+      updateContract: (id, patch) =>
+        setContracts((prev) => prev.map((p) => (p.id === id ? { ...p, ...patch } : p))),
+      removeContract: (id) => setContracts((prev) => prev.filter((p) => p.id !== id)),
+      resetDemo: () => {
+        setMembers(SEED_MEMBERS)
+        setContracts(SEED_CONTRACTS)
+      },
     }),
-    [members],
+    [members, contracts],
   )
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>
