@@ -130,7 +130,7 @@ button { font-family: inherit; cursor: pointer; }
 }
 .topbar h1 { font-size: 19px; margin: 0; font-weight: 700; }
 .topbar .sub { font-size: 12.5px; color: var(--text-muted); margin-top: 2px; }
-.content { padding: 26px 32px 60px; max-width: 1280px; }
+.content { padding: 26px 32px 60px; }
 
 /* ---------- Cards / KPI ---------- */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
