@@ -3,7 +3,7 @@ import { useStore } from '../store'
 import { CATEGORY_COLORS, metaOf } from '../data/software'
 import { yen } from '../utils'
 
-export default function Software() {
+export default function Software({ onOpen }: { onOpen: (sw: string) => void }) {
   const { members, software } = useStore()
 
   const cards = useMemo(
@@ -32,7 +32,7 @@ export default function Software() {
         {cards.map(({ sw, meta, count, cost }) => {
           const c = CATEGORY_COLORS[meta.category]
           return (
-            <div className="card sw-card" key={sw}>
+            <div className="card sw-card" key={sw} onClick={() => onOpen(sw)} style={{ cursor: 'pointer' }}>
               <div className="sw-head">
                 <div className="sw-icon" style={{ background: c }}>{sw.slice(0, 1).toUpperCase()}</div>
                 <div>
@@ -50,6 +50,11 @@ export default function Software() {
                   <div className="l">月額（概算）</div>
                 </div>
               </div>
+              {meta.url && (
+                <a className="sw-link" href={meta.url} target="_blank" rel="noopener noreferrer" style={{ color: c }} onClick={(e) => e.stopPropagation()}>
+                  🔗 管理画面で状況を確認
+                </a>
+              )}
             </div>
           )
         })}

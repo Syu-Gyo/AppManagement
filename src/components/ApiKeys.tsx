@@ -97,6 +97,12 @@ export default function ApiKeys({ onOpen }: { onOpen: (k: ApiKey) => void }) {
                 <td>
                   <div className="person-name">{k.service}</div>
                   <div className="person-mail">{k.label} · 最終利用 {k.lastUsed}</div>
+                  {k.consoleUrl && (
+                    <a className="sw-link" href={k.consoleUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ marginTop: 4 }} onClick={(e) => e.stopPropagation()}>
+                      🔗 利用状況を確認
+                    </a>
+                  )}
                 </td>
                 <td>
                   <code style={{ fontSize: 12, background: 'var(--surface-2)', padding: '3px 7px', borderRadius: 6 }}>

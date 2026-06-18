@@ -7,16 +7,19 @@ type Draft = Omit<ApiKey, 'id'>
 const EMPTY: Draft = {
   service: '', label: '', keyMasked: 'sk-••••••', owner: '', env: '開発',
   status: '有効', monthlyUsage: 0, monthlyBudget: 10000, lastUsed: '2026-06-16',
+  consoleUrl: '',
 }
 
 export default function ApiKeyDrawer({
   apiKey,
   mode,
   onClose,
+  inline = false,
 }: {
   apiKey: ApiKey | null
   mode: 'view' | 'new'
   onClose: () => void
+  inline?: boolean
 }) {
   const { updateApiKey, addApiKey, removeApiKey } = useStore()
   const [draft, setDraft] = useState<Draft>(EMPTY)
@@ -40,10 +43,8 @@ export default function ApiKeyDrawer({
     onClose()
   }
 
-  return (
+  const content = (
     <>
-      <div className="overlay" onClick={onClose} />
-      <div className="drawer">
         <div className="drawer-head">
           <div className="sw-icon" style={{ background: '#0891b2', width: 46, height: 46 }}>🔑</div>
           <div style={{ flex: 1 }}>
@@ -65,6 +66,15 @@ export default function ApiKeyDrawer({
           <div className="field">
             <label>APIキー（マスク表記）</label>
             <input value={draft.keyMasked} onChange={(e) => set('keyMasked', e.target.value)} placeholder="sk-••••••" />
+          </div>
+          <div className="field">
+            <label>管理コンソールURL（利用状況の確認先）</label>
+            <input value={draft.consoleUrl ?? ''} onChange={(e) => set('consoleUrl', e.target.value)} placeholder="https://platform.openai.com/usage" />
+            {draft.consoleUrl && (
+              <a className="sw-link" href={draft.consoleUrl} target="_blank" rel="noopener noreferrer" style={{ marginTop: 4 }}>
+                🔗 コンソールを開く
+              </a>
+            )}
           </div>
           <div className="field">
             <label>管理者</label>
@@ -121,7 +131,14 @@ export default function ApiKeyDrawer({
             <button className="btn primary" onClick={save}>{mode === 'new' ? '追加する' : '保存する'}</button>
           </div>
         </div>
-      </div>
+    </>
+  )
+
+  if (inline) return <div className="rb-detail">{content}</div>
+  return (
+    <>
+      <div className="overlay" onClick={onClose} />
+      <div className="drawer">{content}</div>
     </>
   )
 }

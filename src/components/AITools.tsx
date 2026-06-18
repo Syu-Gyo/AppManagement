@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import { SEED_AI_PLANS, type AiPlan } from '../data/aiplans'
-import { avatarColor, initials, yen } from '../utils'
+import { useMemo } from 'react'
+import { SEED_AI_PLANS, AI_MODEL_URLS, type AiPlan } from '../data/aiplans'
+import { yen } from '../utils'
 
 const TODAY = new Date('2026-06-16T00:00:00')
 
@@ -10,6 +10,7 @@ const MODEL_COLORS: Record<string, string> = {
   Genspark: '#2563eb', Tripo: '#0891b2', Adobeexpress: '#e11d48', 'Google AI': '#f59e0b',
 }
 const colorOf = (m: string) => MODEL_COLORS[m] ?? '#64748b'
+const urlOf = (p: AiPlan) => p.url ?? AI_MODEL_URLS[p.model]
 
 function renewBadge(renewalDate: string) {
   if (!renewalDate) return null
@@ -20,9 +21,8 @@ function renewBadge(renewalDate: string) {
   return <span className="tag" style={{ background: '#f0fdf4', color: '#16a34a', borderColor: '#bbf7d0' }}>契約中</span>
 }
 
-export default function AITools() {
+export default function AITools({ onOpen }: { onOpen: (p: AiPlan) => void }) {
   const plans = SEED_AI_PLANS
-  const [sel, setSel] = useState<AiPlan | null>(null)
 
   const stats = useMemo(() => {
     const models = new Set(plans.map((p) => p.model))
@@ -67,9 +67,9 @@ export default function AITools() {
         {plans.map((p) => {
           const c = colorOf(p.model)
           const over = p.members.length > p.seats
+          const url = urlOf(p)
           return (
-            <div className="card sw-card" key={p.id} style={{ cursor: 'pointer', borderColor: sel?.id === p.id ? c : undefined }}
-              onClick={() => setSel(sel?.id === p.id ? null : p)}>
+            <div className="card sw-card" key={p.id} style={{ cursor: 'pointer' }} onClick={() => onOpen(p)}>
               <div className="sw-head">
                 <div className="sw-icon" style={{ background: c }}>{p.model.slice(0, 1).toUpperCase()}</div>
                 <div style={{ flex: 1 }}>
@@ -91,50 +91,19 @@ export default function AITools() {
               </div>
 
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10, fontSize: 12 }}>
-                <div className="muted">契約日: {p.contractText || '—'}</div>
                 <div className="muted">更新日: {p.renewalText || '—'}（期間 {p.termText}）</div>
-                {p.admins.length > 0 && (
-                  <div style={{ marginTop: 6 }}>
-                    <span className="muted">管理者: </span>
-                    {p.admins.map((a) => (
-                      <span key={a} className="tag" style={{ marginRight: 4, background: c + '14', color: c, borderColor: c + '33' }}>★ {a}</span>
-                    ))}
-                  </div>
+                {p.admins.length > 0 && <div className="muted" style={{ marginTop: 4 }}>管理者: {p.admins.join('、')}</div>}
+                {url && (
+                  <a className="sw-link" href={url} target="_blank" rel="noopener noreferrer"
+                    style={{ color: c, marginTop: 6 }} onClick={(e) => e.stopPropagation()}>
+                    🔗 管理画面で状況を確認
+                  </a>
                 )}
               </div>
             </div>
           )
         })}
       </div>
-
-      {sel && (
-        <div className="card" style={{ padding: 20, marginTop: 20 }}>
-          <div className="toolbar" style={{ marginBottom: 12 }}>
-            <h2 className="section-title" style={{ margin: 0 }}>
-              👥 {sel.model}（{sel.plan}）の配布メンバー
-            </h2>
-            <span style={{ marginLeft: 'auto', fontSize: 12.5, color: 'var(--text-muted)' }}>
-              {sel.members.length} 名 / 契約 {sel.seats} 本
-            </span>
-            <button className="btn ghost" onClick={() => setSel(null)}>閉じる</button>
-          </div>
-          {sel.members.length === 0 ? (
-            <div className="empty">この資料には個別の配布先リストがありません（{sel.seats}本契約）</div>
-          ) : (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {sel.members.map((m) => {
-                const admin = sel.admins.includes(m)
-                return (
-                  <div key={m} className="person-cell" style={{ background: 'var(--surface-2)', padding: '6px 12px 6px 6px', borderRadius: 999 }}>
-                    <div className="avatar" style={{ background: avatarColor(m), width: 26, height: 26, fontSize: 11 }}>{initials(m)}</div>
-                    <span style={{ fontSize: 12.5, fontWeight: admin ? 700 : 500 }}>{m}{admin ? ' ★' : ''}</span>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   )
 }

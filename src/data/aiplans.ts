@@ -4,7 +4,20 @@ export interface AiPlan {
   id: number; model: string; plan: string; amountText: string; estMonthlyJpy: number;
   seats: number; termText: string; billing: string; contractText: string;
   renewalText: string; renewalDate: string; contractDate: string;
-  admins: string[]; members: string[]; note: string
+  admins: string[]; members: string[]; note: string;
+  /** 契約・利用状況を確認できる管理画面のURL */
+  url?: string
+}
+
+// モデルごとの管理画面・アカウントページ（状況確認用）
+export const AI_MODEL_URLS: Record<string, string> = {
+  chatGPT: 'https://chatgpt.com/admin',
+  KreaAI: 'https://www.krea.ai/account',
+  Genspark: 'https://www.genspark.ai',
+  Tripo: 'https://www.tripo3d.ai',
+  Midjourney: 'https://www.midjourney.com/account',
+  Adobeexpress: 'https://adminconsole.adobe.com',
+  'Google AI': 'https://gemini.google.com',
 }
 
 export const SEED_AI_PLANS: AiPlan[] = [

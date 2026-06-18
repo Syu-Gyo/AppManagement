@@ -11,10 +11,12 @@ export default function MemberDrawer({
   member,
   mode,
   onClose,
+  inline = false,
 }: {
   member: Member | null
   mode: 'view' | 'new'
   onClose: () => void
+  inline?: boolean
 }) {
   const { software, updateMember, addMember, removeMember } = useStore()
   const [draft, setDraft] = useState<Draft>(EMPTY)
@@ -43,10 +45,8 @@ export default function MemberDrawer({
     onClose()
   }
 
-  return (
+  const content = (
     <>
-      <div className="overlay" onClick={onClose} />
-      <div className="drawer">
         <div className="drawer-head">
           <div className="avatar" style={{ background: avatarColor(draft.name || '新'), width: 46, height: 46, fontSize: 18 }}>
             {draft.name ? initials(draft.name) : '＋'}
@@ -101,7 +101,14 @@ export default function MemberDrawer({
             <button className="btn primary" onClick={save}>{mode === 'new' ? '登録する' : '保存する'}</button>
           </div>
         </div>
-      </div>
+    </>
+  )
+
+  if (inline) return <div className="rb-detail">{content}</div>
+  return (
+    <>
+      <div className="overlay" onClick={onClose} />
+      <div className="drawer">{content}</div>
     </>
   )
 }

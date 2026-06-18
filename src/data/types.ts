@@ -15,4 +15,6 @@ export interface SoftwareMeta {
   /** 1ライセンスあたりの月額（円）— デモ用の概算 */
   monthlyCost: number
   vendor: string
+  /** ライセンス/契約状況を確認できる管理画面・アカウントページのURL */
+  url?: string
 }

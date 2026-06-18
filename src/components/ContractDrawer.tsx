@@ -13,10 +13,12 @@ export default function ContractDrawer({
   contract,
   mode,
   onClose,
+  inline = false,
 }: {
   contract: Contract | null
   mode: 'view' | 'new'
   onClose: () => void
+  inline?: boolean
 }) {
   const { software, updateContract, addContract, removeContract } = useStore()
   const [draft, setDraft] = useState<Draft>(EMPTY)
@@ -42,10 +44,8 @@ export default function ContractDrawer({
     onClose()
   }
 
-  return (
+  const content = (
     <>
-      <div className="overlay" onClick={onClose} />
-      <div className="drawer">
         <div className="drawer-head">
           <div className="sw-icon" style={{ background: '#3b5bfd', width: 46, height: 46 }}>
             {(draft.software || '契').slice(0, 1).toUpperCase()}
@@ -135,7 +135,14 @@ export default function ContractDrawer({
             <button className="btn primary" onClick={save}>{mode === 'new' ? '追加する' : '保存する'}</button>
           </div>
         </div>
-      </div>
+    </>
+  )
+
+  if (inline) return <div className="rb-detail">{content}</div>
+  return (
+    <>
+      <div className="overlay" onClick={onClose} />
+      <div className="drawer">{content}</div>
     </>
   )
 }
