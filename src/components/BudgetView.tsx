@@ -111,7 +111,7 @@ export default function BudgetView() {
 
       {/* 年度別サマリー（全年度の予算 vs 実績） */}
       <div className="card" style={{ padding: 20, marginBottom: 20 }}>
-        <h2 className="section-title">📅 年度別 予算 vs 実績</h2>
+        <h2 className="section-title">📅 年度別 予算/実績</h2>
         {yearSummary.map((s) => {
           const over = s.actual > s.budget
           const diff = s.budget - s.actual
@@ -134,14 +134,32 @@ export default function BudgetView() {
                 {s.y}年{s.y === year ? ' ◀' : ''}
               </button>
               <div className="tip-wrap" style={{ position: 'relative' }}>
-                {/* 予算（薄いトラック） */}
-                <div className="bar-track" style={{ height: 16 }}>
-                  <div className="bar-fill" style={{ width: `${(s.budget / maxSummary) * 100}%`, background: '#cbd5e1' }} />
+                {/* 予算＝グレーのゲージ。その中に実績（緑）が溜まる */}
+                <div
+                  className="bar-track"
+                  style={{ height: 18, width: `${(s.budget / maxSummary) * 100}%`, minWidth: 4, background: '#cbd5e1', borderColor: '#cbd5e1' }}
+                >
+                  <div
+                    className="bar-fill"
+                    style={{
+                      width: `${Math.min(100, s.budget ? (s.actual / s.budget) * 100 : 0)}%`,
+                      background: over ? '#e11d48' : '#16a34a',
+                    }}
+                  />
                 </div>
-                {/* 実績（重ね） */}
-                <div className="bar-track" style={{ height: 10, marginTop: 3, background: 'transparent', border: 'none' }}>
-                  <div className="bar-fill" style={{ width: `${(s.actual / maxSummary) * 100}%`, background: over ? '#e11d48' : '#16a34a' }} />
-                </div>
+                {/* 超過分はゲージの外に赤くはみ出す */}
+                {over && (
+                  <div
+                    style={{
+                      position: 'absolute', top: 0,
+                      left: `${(s.budget / maxSummary) * 100}%`,
+                      height: 18,
+                      width: `${((s.actual - s.budget) / maxSummary) * 100}%`,
+                      background: '#e11d48', opacity: 0.55,
+                      borderRadius: '0 999px 999px 0',
+                    }}
+                  />
+                )}
                 <div className="tip">
                   <div className="tip-title">{s.y}年</div>
                   <div className="tip-row"><span>予算</span><b>{yen(s.budget)}</b></div>

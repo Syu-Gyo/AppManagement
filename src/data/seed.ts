@@ -1,7 +1,13 @@
 // Auto-generated from 2026全国デザイン設計部員.xlsx — demo seed data
 import type { Member, SoftwareName } from './types'
 
-export const SOFTWARE_LIST = ["Midjourney", "chatGPT", "Autocad", "AutocadLT", "sketchup", "photoshop", "Adobe Express", "acrobat", "CreativeCloud", "solidworks", "Twinmotion", "Revit"] as const
+// 閲覧画面と同じカテゴリ順: Adobe → Autodesk → DCC → AI
+export const SOFTWARE_LIST = [
+  "photoshop", "Adobe Express", "acrobat", "CreativeCloud",
+  "Autocad", "AutocadLT", "Revit",
+  "sketchup", "solidworks", "Twinmotion", "3dsMax", "Vray",
+  "Midjourney", "chatGPT Business", "chatGPT Pro", "KreaAI", "Genspark", "Tripo", "GoogleAI",
+] as const
 
 export const SEED_MEMBERS: Member[] = [
   {

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../store'
 import { CATEGORY_COLORS, metaOf } from '../data/software'
+import { FREQUENCY_META, type UsageRecord } from '../data/usage'
 import { avatarColor, initials, yen } from '../utils'
 
 type Tab = 'usage' | 'coverage'
@@ -14,7 +15,7 @@ function rateColor(pct: number): string {
 }
 
 export default function Analytics() {
-  const { members, software, apiKeys } = useStore()
+  const { members, software, apiKeys, usage } = useStore()
   const [tab, setTab] = useState<Tab>('usage')
   const [q, setQ] = useState('')
   const [dept, setDept] = useState('')
@@ -78,6 +79,13 @@ export default function Analytics() {
         : b.licenses.length - a.licenses.length,
     )
   }, [members, q, dept, sortBy])
+
+  // (memberId, software) -> アンケート回答
+  const usageMap = useMemo(() => {
+    const m = new Map<string, UsageRecord>()
+    for (const u of usage) m.set(`${u.memberId}::${u.software}`, u)
+    return m
+  }, [usage])
 
   const maxPct = Math.max(1, ...perTool.map((t) => t.pct))
   const maxApiUsage = Math.max(1, ...apiByOwner.map((o) => o.usage))
@@ -185,9 +193,15 @@ export default function Analytics() {
               <option value="count">保有数が多い順</option>
               <option value="name">名前順</option>
             </select>
-            <span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>
-              ● = 利用中 / 空欄 = 未利用（{rows.length} 名）
-            </span>
+            <span style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>{rows.length} 名</span>
+          </div>
+
+          <div className="legend" style={{ marginBottom: 12 }}>
+            {Object.values(FREQUENCY_META).map((f) => (
+              <span key={f.label}><span className="sw-dot" style={{ background: f.color }} />{f.label}</span>
+            ))}
+            <span><span className="sw-dot" style={{ background: 'var(--surface-2)', border: '1px dashed var(--text-faint)' }} />未回答</span>
+            <span style={{ color: 'var(--text-faint)' }}>空欄＝未保有</span>
           </div>
 
           <div className="matrix-wrap">
@@ -219,15 +233,30 @@ export default function Analytics() {
                       </th>
                       {software.map((sw) => {
                         const on = m.licenses.includes(sw)
-                        const col = CATEGORY_COLORS[metaOf(sw).category]
+                        const rec = usageMap.get(`${m.id}::${sw}`)
+                        if (!on) {
+                          return (
+                            <td className="cell" key={sw}>
+                              <div className="heat-dot off" title={`${m.name} — ${sw}：未保有`} />
+                            </td>
+                          )
+                        }
+                        if (!rec) {
+                          return (
+                            <td className="cell" key={sw}>
+                              <div className="heat-dot unknown" title={`${m.name} — ${sw}：保有・アンケート未回答`}>?</div>
+                            </td>
+                          )
+                        }
+                        const fm = FREQUENCY_META[rec.frequency]
                         return (
                           <td className="cell" key={sw}>
                             <div
-                              className={'heat-dot ' + (on ? 'on' : 'off')}
-                              style={on ? { background: col } : undefined}
-                              title={`${m.name} — ${sw}：${on ? '利用中' : '未利用'}`}
+                              className={'heat-dot on' + (fm.active ? '' : ' dim')}
+                              style={{ background: fm.color }}
+                              title={`${m.name} — ${sw}：${fm.label}${rec.stillNeeded === 'no' ? '（不要と回答）' : ''}`}
                             >
-                              {on ? '●' : ''}
+                              {fm.active ? '●' : '▽'}
                             </div>
                           </td>
                         )
