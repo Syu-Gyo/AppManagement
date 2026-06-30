@@ -982,9 +982,15 @@ function OptimizationBreakdown({ b, currentSeats, onFocusField, readOnly }: { b:
             >
               <div style={{ background: color, color: '#fff', padding: '6px 10px', fontSize: 11, fontWeight: 700, textAlign: 'center', lineHeight: 1.3 }}>{it.label}</div>
               <div style={{ padding: '10px 8px', textAlign: 'center', background: 'var(--surface)' }}>
-                <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>{it.people}<span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)' }}> 名</span></div>
+                {it.kind === 'reserve' ? (
+                  <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>{seats}<span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)' }}> 本</span></div>
+                ) : (
+                  <div style={{ fontSize: 22, fontWeight: 800, color, lineHeight: 1 }}>{it.people}<span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)' }}> 名</span></div>
+                )}
                 {it.note && <div style={{ fontSize: 10, color: 'var(--text-faint)', marginTop: 4 }}>{it.note}</div>}
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', marginTop: 5 }}>→ {result}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text)', marginTop: 5 }}>
+                  {it.kind === 'reserve' ? '→ 追加' : `→ ${result}`}
+                </div>
               </div>
             </div>
           )

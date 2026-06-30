@@ -52,6 +52,50 @@ export function exportAsPptx(slide: Slide, opt?: OptBreakdown, currentUsers?: nu
     y += 0.55
   }
 
+  // ── Pre-calculate heights for dynamic spacing
+  let contentHeight = 0
+  let visibleSectionsCount = 0
+
+  // Flow is always 0.8
+  contentHeight += 0.8
+  visibleSectionsCount++
+
+  if (sectionVisible(slide, 'userAnalysis')) {
+    contentHeight += 0.95
+    visibleSectionsCount++
+  }
+
+  let optBreakdownActive = sectionVisible(slide, 'optBreakdown') && opt && Array.isArray(opt.items) && opt.items.length > 0
+  if (optBreakdownActive) {
+    const allDelta = optDeltaTerms(opt!)
+    let linesCount = 1
+    if (allDelta.filter((t) => t.sign === '-').length > 0) linesCount++
+    if (allDelta.filter((t) => t.sign === '+').length > 0) linesCount++
+    contentHeight += 1.1 + linesCount * 0.2
+    visibleSectionsCount++
+  }
+
+  const hasCost = sectionVisible(slide, 'cost')
+  const hasReason = sectionVisible(slide, 'reason')
+  const hasSchedule = sectionVisible(slide, 'schedule')
+
+  if (hasCost || hasReason || hasSchedule) {
+    const leftH = (hasCost ? 0.8 : 0) + (hasReason ? 0.95 : 0)
+    const rightH = hasSchedule ? 0.25 + 0.3 * slide.actions.length : 0
+    contentHeight += Math.max(leftH, rightH)
+    visibleSectionsCount++
+  }
+
+  const availableHeight = 6.9 - y
+  let gap = visibleSectionsCount > 1 ? Math.max(0.15, (availableHeight - contentHeight) / (visibleSectionsCount - 1)) : 0.15
+  if (gap > 0.6) gap = 0.6
+  
+  // Center vertically if there is leftover space
+  const totalWithGaps = contentHeight + gap * (visibleSectionsCount - 1)
+  if (totalWithGaps < availableHeight) {
+    y += (availableHeight - totalWithGaps) / 2
+  }
+
   // ── Stats Flow (現在の契約本数 → 増減申請本数 → 申請後の本数)
   const drawFlowNode = (x: number, topY: number, w: number, h: number, label: string, value: string, color: string, hero: boolean) => {
     s.addShape(prs.ShapeType.rect, {
@@ -76,7 +120,7 @@ export function exportAsPptx(slide: Slide, opt?: OptBreakdown, currentUsers?: nu
   drawArrow(8.6, y, '16A34A')
   drawFlowNode(9.2, y, 3.9, 0.8, '申請後の本数', `${slide.currentSeats + slide.requestSeats} 本`, '15803D', true)
 
-  y += 1.0
+  y += 0.8 + gap
 
   // ── 利用人数分析 (User Analysis)
   if (sectionVisible(slide, 'userAnalysis')) {
@@ -118,7 +162,7 @@ export function exportAsPptx(slide: Slide, opt?: OptBreakdown, currentUsers?: nu
     const subColor = additionalSeats > 0 ? '16A34A' : 'E11D48'
     drawUserNode(cx, y, cw, 0.75, '追加本数目安', addStr, deltaColor, deltaBg, deltaBd, subStr, subColor)
 
-    y += 0.95
+    y += 0.75 + gap
   }
 
   // ── 最適化内訳
@@ -140,8 +184,13 @@ export function exportAsPptx(slide: Slide, opt?: OptBreakdown, currentUsers?: nu
       s.addShape(prs.ShapeType.rect, { x, y, w: cw, h: 0.25, fill: { color }, line: { type: 'none' } })
       s.addText(it.label, { x: x, y: y, w: cw, h: 0.25, fontSize: 8.5, bold: true, color: 'FFFFFF', align: 'center', valign: 'middle', fontFace: FONT })
       s.addShape(prs.ShapeType.rect, { x, y: y + 0.25, w: cw, h: 0.5, fill: { color: 'FFFFFF' }, line: { color: BORDER, pt: 1 } })
-      s.addText(`${it.people} 名`, { x: x, y: y + 0.3, w: cw, h: 0.25, fontSize: 14, bold: true, color, align: 'center', fontFace: FONT })
-      s.addText(`→ ${result}`, { x: x, y: y + 0.55, w: cw, h: 0.2, fontSize: 8.5, bold: true, color: DARK, align: 'center', fontFace: FONT })
+      if (it.kind === 'reserve') {
+        s.addText(`${seats} 本`, { x: x, y: y + 0.3, w: cw, h: 0.25, fontSize: 14, bold: true, color, align: 'center', fontFace: FONT })
+        s.addText(`→ 追加`, { x: x, y: y + 0.55, w: cw, h: 0.2, fontSize: 8.5, bold: true, color: DARK, align: 'center', fontFace: FONT })
+      } else {
+        s.addText(`${it.people} 名`, { x: x, y: y + 0.3, w: cw, h: 0.25, fontSize: 14, bold: true, color, align: 'center', fontFace: FONT })
+        s.addText(`→ ${result}`, { x: x, y: y + 0.55, w: cw, h: 0.2, fontSize: 8.5, bold: true, color: DARK, align: 'center', fontFace: FONT })
+      }
     })
     y += 0.85
 
@@ -165,7 +214,7 @@ export function exportAsPptx(slide: Slide, opt?: OptBreakdown, currentUsers?: nu
       let color = line.startsWith('削減') ? 'B91C1C' : line.startsWith('増加') ? '2563EB' : '0F6E56'
       s.addText(line, { x: 0.3, y: y + 0.05 + i * 0.2, w: 12.7, h: 0.2, fontSize: 9, bold: true, color: color, fontFace: FONT })
     })
-    y += 0.25 + exprLines.length * 0.2
+    y += 0.15 + exprLines.length * 0.2 + gap
   }
 
   // ── Bottom Sections (費用, 理由, 予定)
