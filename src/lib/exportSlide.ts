@@ -267,6 +267,35 @@ export function exportAsPptx(slide: Slide, opt?: OptBreakdown, currentUsers?: nu
   prs.writeFile({ fileName: `申請書_${slide.software}.pptx` })
 }
 
-export function exportAsPdf(): void {
-  window.print()
+export async function exportAsPdf(software: string = 'App'): Promise<void> {
+  try {
+    const el = document.getElementById('print-slide-container')
+    if (!el) {
+      alert('プレビュー要素が見つかりません')
+      return
+    }
+
+    const html2canvas = (await import('html2canvas')).default
+    const { jsPDF } = await import('jspdf')
+
+    // Capture the element
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true })
+    const imgData = canvas.toDataURL('image/jpeg', 1.0)
+
+    // Calculate A4 size in mm
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight)
+    pdf.save(`申請書_${software}.pdf`)
+  } catch (err) {
+    console.error(err)
+    alert('PDFの生成に失敗しました。')
+  }
 }

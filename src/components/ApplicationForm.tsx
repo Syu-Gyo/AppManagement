@@ -673,7 +673,7 @@ function SlideCard({
   })
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div id="slide-card-container" style={{ display: 'flex', flexDirection: 'column', gap: 16, background: '#fff' }}>
       {/* ヘッダー */}
       <div className="card" style={{ padding: '20px 24px', borderLeft: `4px solid ${s.badgeColor}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: s.alert ? 12 : 0 }}>
@@ -1138,11 +1138,19 @@ function PrintSlide({ slide: s, optRow, onClose }: { slide: Slide; optRow?: OptR
       <div className="no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h3 style={{ margin: 0 }}>PDF出力プレビュー：{s.software}</h3>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="btn primary" onClick={() => { exportAsPdf(); onClose() }}>📄 PDFとして保存</button>
+          <button className="btn primary" onClick={async () => { 
+            const btn = document.activeElement as HTMLButtonElement;
+            if (btn) btn.disabled = true;
+            try {
+              await exportAsPdf(s.software);
+            } finally {
+              onClose();
+            }
+          }}>📄 PDFとして保存</button>
           <button className="btn" onClick={onClose}>← 戻る</button>
         </div>
       </div>
-      <div className="card print-slide" style={{ padding: '32px 40px', maxWidth: 800, margin: '0 auto' }}>
+      <div id="print-slide-container" className="card print-slide" style={{ padding: '32px 40px', maxWidth: 800, margin: '0 auto', background: '#fff' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, borderBottom: '2px solid var(--border)', paddingBottom: 20, marginBottom: 20 }}>
           {meta.icon && <img src={meta.icon} alt="" style={{ width: 56, height: 56, objectFit: 'contain', borderRadius: 12 }} />}
           <div>
