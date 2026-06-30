@@ -16,3 +16,10 @@ npm-debug.log*
 # editor / OS
 .DS_Store
 Thumbs.db
+
+# env
+.env
+.env.local
+
+# claude
+.claude/
